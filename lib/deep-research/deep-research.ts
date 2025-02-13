@@ -1,10 +1,10 @@
-import FirecrawlApp, { SearchResponse } from '@mendable/firecrawl-js';
-import { generateObject } from 'ai';
-import { compact } from 'lodash-es';
-import { z } from 'zod';
+import FirecrawlApp, { SearchResponse } from "@mendable/firecrawl-js";
+import { generateObject } from "ai";
+import { compact } from "lodash-es";
+import { z } from "zod";
 
-import { createModel, trimPrompt } from './ai/providers';
-import { systemPrompt } from './prompt';
+import { createModel, trimPrompt } from "./ai/providers";
+import { systemPrompt } from "./prompt";
 
 type ResearchResult = {
   learnings: string[];
@@ -25,7 +25,7 @@ type DeepResearchOptions = {
 // Update the firecrawl initialization to use the provided key
 const getFirecrawl = (apiKey?: string) =>
   new FirecrawlApp({
-    apiKey: apiKey ?? process.env.FIRECRAWL_KEY ?? '',
+    apiKey: apiKey ?? process.env.FIRECRAWL_KEY ?? "",
     apiUrl: process.env.FIRECRAWL_BASE_URL,
   });
 
@@ -51,7 +51,7 @@ const formatProgress = {
 // Helper function to log and stream messages
 async function logProgress(
   message: string,
-  onProgress?: (update: string) => Promise<void>,
+  onProgress?: (update: string) => Promise<void>
 ) {
   if (onProgress) {
     await onProgress(message);
@@ -82,33 +82,33 @@ async function generateSerpQueries({
     prompt: `Given the following prompt from the user, generate a list of SERP queries to research the topic. Return a maximum of ${numQueries} queries, but feel free to return less if the original prompt is clear. Make sure each query is unique and not similar to each other: <prompt>${query}</prompt>\n\n${
       learnings
         ? `Here are some learnings from previous research, use them to generate more specific queries: ${learnings.join(
-            '\n',
+            "\n"
           )}`
-        : ''
+        : ""
     }`,
     schema: z.object({
       queries: z
         .array(
           z.object({
-            query: z.string().describe('The SERP query'),
+            query: z.string().describe("The SERP query"),
             researchGoal: z
               .string()
               .describe(
-                'First talk about the goal of the research that this query is meant to accomplish, then go deeper into how to advance the research once the results are found, mention additional research directions. Be as specific as possible, especially for additional research directions.',
+                "First talk about the goal of the research that this query is meant to accomplish, then go deeper into how to advance the research once the results are found, mention additional research directions. Be as specific as possible, especially for additional research directions."
               ),
-          }),
+          })
         )
         .describe(`List of SERP queries, max of ${numQueries}`),
     }),
   });
 
-  const queriesList = res.object.queries.map(q => q.query).join(', ');
+  const queriesList = res.object.queries.map((q) => q.query).join(", ");
   await logProgress(
     formatProgress.created(res.object.queries.length, queriesList),
-    onProgress,
+    onProgress
   );
 
-  return res.object.queries.slice(0, numQueries).map(q => q.query);
+  return res.object.queries.slice(0, numQueries).map((q) => q.query);
 }
 
 async function processSerpResult({
@@ -126,8 +126,8 @@ async function processSerpResult({
   onProgress?: (update: string) => Promise<void>;
   model: ReturnType<typeof createModel>;
 }) {
-  const contents = compact(result.data.map(item => item.markdown)).map(
-    content => trimPrompt(content, 25_000),
+  const contents = compact(result.data.map((item) => item.markdown)).map(
+    (content) => trimPrompt(content, 25_000)
   );
 
   await logProgress(formatProgress.ran(query, contents.length), onProgress);
@@ -137,8 +137,8 @@ async function processSerpResult({
     abortSignal: AbortSignal.timeout(60_000),
     system: systemPrompt(),
     prompt: `Given the following contents from a SERP search for the query <query>${query}</query>, generate a list of learnings from the contents. Return a maximum of ${numLearnings} learnings, but feel free to return less if the contents are clear. Make sure each learning is unique and not similar to each other. The learnings should be concise and to the point, as detailed and information dense as possible. Make sure to include any entities like people, places, companies, products, things, etc in the learnings, as well as any exact metrics, numbers, or dates. The learnings will be used to research the topic further.\n\n<contents>${contents
-      .map(content => `<content>\n${content}\n</content>`)
-      .join('\n')}</contents>`,
+      .map((content) => `<content>\n${content}\n</content>`)
+      .join("\n")}</contents>`,
     schema: z.object({
       learnings: z
         .array(z.string())
@@ -146,14 +146,14 @@ async function processSerpResult({
       followUpQuestions: z
         .array(z.string())
         .describe(
-          `List of follow-up questions to research the topic further, max of ${numFollowUpQuestions}`,
+          `List of follow-up questions to research the topic further, max of ${numFollowUpQuestions}`
         ),
     }),
   });
 
   await logProgress(
     formatProgress.generated(res.object.learnings.length, query),
-    onProgress,
+    onProgress
   );
 
   return res.object;
@@ -172,26 +172,26 @@ export async function writeFinalReport({
 }) {
   const learningsString = trimPrompt(
     learnings
-      .map(learning => `<learning>\n${learning}\n</learning>`)
-      .join('\n'),
-    150_000,
+      .map((learning) => `<learning>\n${learning}\n</learning>`)
+      .join("\n"),
+    150_000
   );
 
   const res = await generateObject({
     model,
     system: systemPrompt(),
-    prompt: `Given the following prompt from the user, write a final report on the topic using the learnings from research and format it in proper Markdown. Use Markdown syntax (headings, lists, horizontal rules, etc.) to structure the document. Aim for a detailed report of at least 3 pages.\n\n<prompt>${prompt}</prompt>\n\nHere are all the learnings from previous research:\n\n<learnings>\n${learningsString}\n</learnings>`,
+    prompt: `研究から得られた知見を使用して、トピックに関する最終レポートを作成し、適切なMarkdown形式でフォーマットしてください。文書の構造化にはMarkdownの構文（見出し、リスト、水平線など）を使用してください。少なくとも3ページの詳細なレポートを目指してください。\n\n<prompt>${prompt}</prompt>\n\n以下が過去の研究からのすべての知見です：\n\n<learnings>\n${learningsString}\n</learnings>`,
     schema: z.object({
       reportMarkdown: z
         .string()
-        .describe('Final report on the topic in Markdown'),
+        .describe("トピックに関する最終レポート（Markdown形式）"),
     }),
   });
 
   // Append the visited URLs as a markdown formatted Sources section
   const urlsSection = `\n\n## Sources\n\n${visitedUrls
-    .map(url => `- ${url}`)
-    .join('\n')}`;
+    .map((url) => `- ${url}`)
+    .join("\n")}`;
 
   // Prepend a primary markdown heading to make sure the UI renders it as markdown
   return `# Research Report\n\n${res.object.reportMarkdown}${urlsSection}`;
@@ -222,8 +222,8 @@ export async function deepResearch({
   });
 
   await logProgress(
-    formatProgress.created(serpQueries.length, serpQueries.join(', ')),
-    onProgress,
+    formatProgress.created(serpQueries.length, serpQueries.join(", ")),
+    onProgress
   );
 
   // Process each SERP query
@@ -234,18 +234,18 @@ export async function deepResearch({
       const searchResults = await firecrawl.search(serpQuery, {
         timeout: 15000,
         limit: 5,
-        scrapeOptions: { formats: ['markdown'] },
+        scrapeOptions: { formats: ["markdown"] },
       });
 
       await logProgress(
         formatProgress.found(searchResults.data.length, serpQuery),
-        onProgress,
+        onProgress
       );
 
       if (searchResults.data.length > 0) {
         await logProgress(
           formatProgress.ran(serpQuery, searchResults.data.length),
-          onProgress,
+          onProgress
         );
 
         const newLearnings = await processSerpResult({
@@ -259,13 +259,13 @@ export async function deepResearch({
 
         await logProgress(
           formatProgress.generated(newLearnings.learnings.length, serpQuery),
-          onProgress,
+          onProgress
         );
 
         results.push({
           learnings: newLearnings.learnings,
           visitedUrls: searchResults.data
-            .map(r => r.url)
+            .map((r) => r.url)
             .filter((url): url is string => url != null),
         });
       }
@@ -280,7 +280,7 @@ export async function deepResearch({
   }
 
   return {
-    learnings: Array.from(new Set(results.flatMap(r => r.learnings))),
-    visitedUrls: Array.from(new Set(results.flatMap(r => r.visitedUrls))),
+    learnings: Array.from(new Set(results.flatMap((r) => r.learnings))),
+    visitedUrls: Array.from(new Set(results.flatMap((r) => r.visitedUrls))),
   };
 }

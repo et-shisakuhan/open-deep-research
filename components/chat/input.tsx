@@ -45,6 +45,7 @@ export function MultimodalInput({
   canDownload = false,
 }: MultimodalInputProps) {
   const [input, setInput] = useState("");
+  const [isComposing, setIsComposing] = useState(false);
   const [breadth, setBreadth] = useState(4);
   const [depth, setDepth] = useState(2);
   const [selectedModel, setSelectedModel] = useState<AIModelDisplayInfo>(
@@ -61,7 +62,6 @@ export function MultimodalInput({
   // When API keys are disabled via env flag, always consider keys as present.
   const effectiveHasKeys = enableApiKeys ? hasKeys : true;
 
-  // Check for keys using the consolidated endpoint
   useEffect(() => {
     const checkKeys = async () => {
       const res = await fetch("/api/keys");
@@ -76,7 +76,6 @@ export function MultimodalInput({
     checkKeys();
   }, [enableApiKeys]);
 
-  // New: Remove API keys handler
   const handleRemoveKeys = async () => {
     if (!window.confirm("Are you sure you want to remove your API keys?"))
       return;
@@ -93,9 +92,8 @@ export function MultimodalInput({
   };
 
   const handleSubmit = () => {
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading || isComposing) return;
     if (enableApiKeys && !effectiveHasKeys) {
-      // Re-open the API key modal if keys are missing
       setShowApiKeyPrompt(true);
       return;
     }
@@ -107,6 +105,7 @@ export function MultimodalInput({
     setInput("");
   };
 
+  // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "inherit";
@@ -128,7 +127,6 @@ export function MultimodalInput({
 
   return (
     <div className="relative w-full flex flex-col gap-4 border-none">
-      {/* Conditionally render API key dialog only if enabled */}
       {enableApiKeys && (
         <ApiKeyDialog
           show={showApiKeyPrompt}
@@ -145,6 +143,10 @@ export function MultimodalInput({
         placeholder={placeholder}
         value={input}
         onChange={(e) => setInput(e.target.value)}
+        onCompositionStart={() => setIsComposing(true)}
+        onCompositionEnd={() => {
+          setIsComposing(false);
+        }}
         className={cx(
           "bg-white min-h-[72px] max-h-[calc(100dvh-200px)] overflow-y-auto text-sm w-full",
           "overflow-hidden resize-none px-4 pb-10 pt-4 rounded-2xl",
@@ -153,6 +155,9 @@ export function MultimodalInput({
         rows={3}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
+            if (isComposing) {
+              return;
+            }
             e.preventDefault();
             handleSubmit();
           }
