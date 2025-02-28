@@ -5,11 +5,12 @@ import Image from "next/image";
 import cx from "classnames";
 import { motion } from "framer-motion";
 import {
-  ArrowUpIcon,
   CheckCircleIcon,
   ChevronDown,
   DownloadIcon,
+  SendIcon,
   Settings2,
+  SparklesIcon,
   XCircleIcon,
 } from "lucide-react";
 
@@ -35,6 +36,8 @@ interface MultimodalInputProps {
   isAuthenticated?: boolean;
   onDownload?: () => void;
   canDownload?: boolean;
+  value?: string;
+  onChange?: (value: string) => void;
 }
 
 export function MultimodalInput({
@@ -43,8 +46,10 @@ export function MultimodalInput({
   placeholder = "What would you like to research?",
   onDownload,
   canDownload = false,
+  value,
+  onChange,
 }: MultimodalInputProps) {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState(value || "");
   const [isComposing, setIsComposing] = useState(false);
   const [breadth, setBreadth] = useState(4);
   const [depth, setDepth] = useState(2);
@@ -105,6 +110,13 @@ export function MultimodalInput({
     setInput("");
   };
 
+  // Sync with external value when it changes
+  useEffect(() => {
+    if (value !== undefined) {
+      setInput(value);
+    }
+  }, [value]);
+
   // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
@@ -142,7 +154,10 @@ export function MultimodalInput({
         ref={textareaRef}
         placeholder={placeholder}
         value={input}
-        onChange={(e) => setInput(e.target.value)}
+        onChange={(e) => {
+          setInput(e.target.value);
+          onChange?.(e.target.value);
+        }}
         onCompositionStart={() => setIsComposing(true)}
         onCompositionEnd={() => {
           setIsComposing(false);
@@ -409,7 +424,7 @@ export function MultimodalInput({
 
       {/* Submit Button */}
       <Button
-        className="rounded-full p-1.5 h-fit absolute bottom-2 right-2 m-0.5 border dark:border-zinc-600"
+        className="rounded-full p-1.5 h-fit absolute bottom-2 right-2 m-0.5 border dark:border-zinc-600 bg-primary hover:bg-primary/90"
         onClick={handleSubmit}
         disabled={!input.trim() || isLoading}
       >
@@ -418,10 +433,15 @@ export function MultimodalInput({
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
           >
-            <Settings2 className="h-4 w-4" />
+            <Settings2 className="h-4 w-4 text-white" />
           </motion.div>
         ) : (
-          <ArrowUpIcon className="h-4 w-4" />
+          <motion.div
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <SparklesIcon className="h-4 w-4 text-white" />
+          </motion.div>
         )}
       </Button>
     </div>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Message } from "ai";
 import { motion } from "framer-motion";
-import { BrainCircuitIcon, GithubIcon, PanelRightOpen } from "lucide-react";
+import { BrainCircuitIcon, Cpu, PanelRightOpen } from "lucide-react";
 
 import { useScrollToBottom } from "@/lib/hooks/use-scroll-to-bottom";
 
@@ -32,6 +32,9 @@ export function Chat({
     "initial"
   );
   const [initialQuery, setInitialQuery] = useState("");
+  
+  // State for current input text, exposed to welcome message
+  const [inputText, setInputText] = useState("");
 
   // Add state for mobile progress panel visibility
   const [showProgress, setShowProgress] = useState(false);
@@ -302,7 +305,7 @@ export function Chat({
                   stiffness: 100,
                   damping: 20,
                 }}
-                className="relative text-center space-y-4 p-4 md:p-12
+                className="relative text-center space-y-4 p-4 md:p-8
                   before:absolute before:inset-0 
                   before:bg-gradient-to-b before:from-primary/[0.03] before:to-primary/[0.01]
                   before:rounded-[32px] before:blur-xl before:-z-10
@@ -335,10 +338,10 @@ export function Chat({
                     className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/30 
                       blur-2xl rounded-full -z-10"
                   />
-                  <BrainCircuitIcon className="w-12 h-12 mx-auto text-primary drop-shadow-[0_0_15px_rgba(var(--primary),0.3)]" />
+                  <Cpu className="w-12 h-12 mx-auto text-primary drop-shadow-[0_0_15px_rgba(var(--primary),0.3)]" />
                 </motion.div>
 
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <motion.h2
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -346,39 +349,48 @@ export function Chat({
                     className="text-base md:text-2xl font-semibold bg-clip-text text-transparent 
                       bg-gradient-to-r from-primary via-primary/90 to-primary/80"
                   >
-                    Open Deep Research
+                    EdgeTech
                   </motion.h2>
 
-                  <motion.p
+                  <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.3 }}
-                    className="text-xs md:text-base text-muted-foreground/80 max-w-[340px] mx-auto leading-relaxed"
+                    className="text-xs md:text-sm text-muted-foreground/90 space-y-1.5"
                   >
-                    An open source alternative to OpenAI and Gemini's deep
-                    research capabilities. Ask any question to generate a
-                    comprehensive report.
-                  </motion.p>
+                    <p className="font-medium">サンプル質問:</p>
+                    <ul className="space-y-1.5 text-left px-2">
+                      <li 
+                        className="cursor-pointer hover:text-primary transition-colors"
+                        onClick={() => setInputText("量子コンピューティングの最新進展について調査して")}
+                      >
+                        「量子コンピューティングの最新進展について調査して」
+                      </li>
+                      <li 
+                        className="cursor-pointer hover:text-primary transition-colors"
+                        onClick={() => setInputText("自動運転技術の現状と将来の課題は？")}
+                      >
+                        「自動運転技術の現状と将来の課題は？」
+                      </li>
+                      <li 
+                        className="cursor-pointer hover:text-primary transition-colors"
+                        onClick={() => setInputText("気候変動対策として有望な新技術を教えて")}
+                      >
+                        「気候変動対策として有望な新技術を教えて」
+                      </li>
+                    </ul>
+                  </motion.div>
 
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
-                    className="pt-2"
+                    className="pt-1"
                   >
-                    <a
-                      href="https://github.com/fdarkaou/open-deep-research"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center px-2 py-1 md:px-6 md:py-2.5 text-xs md:text-sm font-medium 
-                        bg-gradient-to-r from-primary/10 to-primary/5 hover:from-primary/15 hover:to-primary/10
-                        text-primary hover:text-primary/90 rounded-full transition-all duration-300
-                        shadow-[0_0_0_1px_rgba(var(--primary),0.1)] hover:shadow-[0_0_0_1px_rgba(var(--primary),0.2)]
-                        hover:scale-[1.02]"
-                    >
-                      <GithubIcon className="w-4 h-4 mr-1" />
-                      View source code
-                    </a>
+                    <span className="inline-flex items-center px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium 
+                      text-primary rounded-full">
+                      質問を入力して開始
+                    </span>
                   </motion.div>
                 </div>
               </motion.div>
@@ -405,6 +417,8 @@ export function Chat({
             <MultimodalInput
               onSubmit={handleSubmit}
               isLoading={isLoading}
+              value={inputText}
+              onChange={setInputText}
               placeholder={
                 stage === "initial"
                   ? "What would you like to research?"
@@ -413,6 +427,11 @@ export function Chat({
                   : "Research in progress..."
               }
             />
+            {/* Status bar */}
+            <div className="mt-2 text-xs text-center text-muted-foreground flex items-center justify-center gap-1">
+              <BrainCircuitIcon className="w-3 h-3" />
+              <span>EdgeTech Research Assistant</span>
+            </div>
           </div>
         </div>
       </motion.div>
