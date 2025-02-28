@@ -21,10 +21,10 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 240 10% 3.9%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 350 30% 95%;
+    --card-foreground: 240 10% 3.9%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
@@ -32,14 +32,14 @@
     --primary: 357 100% 42%; /* Sony Music Red: #D40000 */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 350 20% 90%;
+    --secondary-foreground: 240 10% 3.9%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 350 10% 94%;
+    --muted-foreground: 357 30% 30%;
 
-    --accent: 0 0% 9%; /* #171717 */
-    --accent-foreground: 0 0% 100%; /* White text */
+    --accent: 357 80% 30%; 
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -68,11 +68,11 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 357 20% 15%;
+    --card-foreground: 0 0% 98%;
 
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
@@ -80,14 +80,14 @@
     --primary: 357 100% 42%; /* Sony Music Red: #D40000 */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 357 30% 25%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 357 15% 20%;
+    --muted-foreground: 0 0% 70%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 357 70% 35%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
@@ -122,6 +122,92 @@
   word-wrap: break-word;
   word-break: break-word;
   hyphens: auto;
+}
+
+/* Fix numbered and bulleted lists display */
+.markdown-github ol {
+  counter-reset: list-item;
+  padding-left: 0;
+}
+
+.markdown-github ol > li {
+  counter-increment: list-item;
+  position: relative;
+  padding-left: 1.75em;
+  display: block; /* Changed to block for nested lists */
+}
+
+.markdown-github ol > li::before {
+  content: counter(list-item) ".";
+  position: absolute;
+  left: 0;
+  font-weight: 500;
+  color: var(--primary);
+}
+
+/* Fix bullet lists display */
+.markdown-github ul {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-github ul > li {
+  position: relative;
+  padding-left: 1.5em;
+  display: block; /* Changed to block for nested lists */
+  margin-top: 0;
+}
+
+.markdown-github ul > li::before {
+  content: "•";
+  position: absolute;
+  left: 0.5em;
+  top: 0.25em;
+  color: var(--primary);
+  font-weight: bold;
+}
+
+/* Handle nested lists properly */
+.markdown-github ul ul,
+.markdown-github ol ul,
+.markdown-github ul ol,
+.markdown-github ol ol {
+  margin-top: 0.25em;
+  margin-bottom: 0;
+  margin-left: 0.5em;
+}
+
+/* Adjust nested list item markers */
+.markdown-github ul ul > li::before {
+  content: "◦"; /* Open circle for second level */
+}
+
+.markdown-github ul ul ul > li::before {
+  content: "▪"; /* Square for third level */
+}
+
+/* Keep the content in li together without breaking */
+.markdown-github li > .li-content {
+  display: inline;
+  width: 100%;
+}
+
+/* Handle nested content properly */
+.markdown-github li > ul,
+.markdown-github li > ol {
+  width: 100%;
+  margin-top: 0.25em;
+}
+
+/* Fix excessive line breaks in parent list items */
+.markdown-github li {
+  margin-bottom: 0.25em;
+}
+
+.markdown-github li:last-child {
+  margin-bottom: 0;
 }
 
 .markdown-github pre {

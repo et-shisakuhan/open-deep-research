@@ -363,21 +363,21 @@ export function Chat({
                     <ul className="space-y-1.5 text-left px-2">
                       <li 
                         className="cursor-pointer hover:text-primary transition-colors"
-                        onClick={() => setInputText("量子コンピューティングの最新進展について調査して")}
+                        onClick={() => setInputText("直近1週間で最もエンゲージメントが高かった音楽アーティストとその要因を分析してください")}
                       >
-                        「量子コンピューティングの最新進展について調査して」
+                        「直近1週間で最もエンゲージメントが高かった音楽アーティストとその要因を分析してください」
                       </li>
                       <li 
                         className="cursor-pointer hover:text-primary transition-colors"
-                        onClick={() => setInputText("自動運転技術の現状と将来の課題は？")}
+                        onClick={() => setInputText("Netflix、Disney+、Amazonの最新オリジナルコンテンツ戦略を比較分析して")}
                       >
-                        「自動運転技術の現状と将来の課題は？」
+                        「Netflix、Disney+、Amazonの最新オリジナルコンテンツ戦略を比較分析して」
                       </li>
                       <li 
                         className="cursor-pointer hover:text-primary transition-colors"
-                        onClick={() => setInputText("気候変動対策として有望な新技術を教えて")}
+                        onClick={() => setInputText("2025年のデジタルエンターテイメント業界で注目すべき新技術トレンドをレポートにまとめて")}
                       >
-                        「気候変動対策として有望な新技術を教えて」
+                        「2025年のデジタルエンターテイメント業界で注目すべき新技術トレンドをレポートにまとめて」
                       </li>
                     </ul>
                   </motion.div>

@@ -3,7 +3,17 @@ import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
+// Helper function to process markdown text to fix numbered list formatting
+const processMarkdownText = (text: string): string => {
+  // Fix numbered lists by preventing line breaks after numbers
+  return text.replace(/^(\d+\.\s)(.+)$/gm, (match, number, content) => {
+    return `${number}${content}`;
+  });
+};
+
 const NonMemoizedMarkdown = ({ children }: { children: string }) => {
+  // Process the markdown text to fix numbered lists formatting
+  const processedText = processMarkdownText(children);
   const components = {
     // Root wrapper
     root: ({ children }: any) => (
@@ -136,8 +146,7 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
         <ul
           className="
             text-sm
-            list-disc
-            list-outside
+            list-none
             ml-6
             space-y-1
             mb-4
@@ -155,8 +164,7 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
         <ol
           className="
             text-sm
-            list-decimal
-            list-outside
+            list-none
             ml-6
             space-y-1
             mb-4
@@ -169,19 +177,83 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
       );
     },
 
-    li: ({ node, children, ...props }: any) => {
+    li: ({ node, children, ordered, ...props }: any) => {
+      // Get parent list type (ordered or unordered)
+      const parentType = props.node?.parent?.type;
+      const isOrderedList = parentType === 'list' && props.node?.parent?.ordered;
+      const isUnorderedList = parentType === 'list' && !props.node?.parent?.ordered;
+      
+      // For all list types, we'll use the custom CSS styling
+      if (isOrderedList || isUnorderedList) {
+        // Check if children contains another list to handle nesting
+        const childContent = React.Children.toArray(children);
+        const hasNestedList = childContent.some(child => 
+          React.isValidElement(child) && (child.type === 'ul' || child.type === 'ol')
+        );
+        
+        // Process children to fix indentation and whitespace issues
+        const processedChildren = React.Children.map(children, child => {
+          // Convert text children to remove extra whitespace at the beginning
+          if (typeof child === 'string') {
+            // Fix whitespace issues with dashes
+            return child.replace(/^\s+/, '').trim();
+          }
+          return child;
+        });
+        
+        if (hasNestedList) {
+          // For nested lists, render processed children directly
+          return (
+            <li
+              className="
+                text-sm
+                leading-relaxed
+                break-words
+                whitespace-normal
+              "
+              {...props}
+            >
+              {processedChildren}
+            </li>
+          );
+        } else {
+          // For simple list items, wrap processed content in span with no extra whitespace
+          return (
+            <li
+              className="
+                text-sm
+                leading-relaxed
+                break-words
+                whitespace-normal
+              "
+              {...props}
+            >
+              <span className="li-content">{processedChildren}</span>
+            </li>
+          );
+        }
+      }
+      
+      // Fallback processing for any other list-like elements
+      const content = React.Children.map(children, child => {
+        if (typeof child === 'string') {
+          // Handle any list-like patterns
+          return child.replace(/^[-*•]|\d+\.\s/, '');
+        }
+        return child;
+      });
+
       return (
         <li
           className="
             text-sm
             leading-relaxed
-            pb-1
             break-words
-            whitespace-pre-wrap
+            whitespace-normal
           "
           {...props}
         >
-          {children}
+          <span className="li-content">{content}</span>
         </li>
       );
     },
@@ -311,7 +383,7 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
   return (
     <div className="markdown-github p-5 rounded-lg bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 overflow-x-hidden">
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
-        {children}
+        {processedText}
       </ReactMarkdown>
     </div>
   );
