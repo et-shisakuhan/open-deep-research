@@ -388,7 +388,7 @@ export function Chat({
                     className="pt-1"
                   >
                     <span className="inline-flex items-center px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium 
-                      text-primary rounded-full">
+                      bg-primary/10 text-primary rounded-full">
                       質問を入力して開始
                     </span>
                   </motion.div>
@@ -403,8 +403,10 @@ export function Chat({
               <PreviewMessage key={message.id} message={message} />
             ))}
             <div ref={messagesEndRef} className="h-4" />
+            
+            {/* Download button - moved to a more visible position */}
             {finalReport && (
-              <div className="mt-6 flex justify-center">
+              <div className="sticky bottom-20 left-0 right-0 z-10 flex justify-center my-4">
                 <DownloadTxtButton 
                   reportText={finalReport}
                   initialQuery={initialQuery}
@@ -431,9 +433,9 @@ export function Chat({
               }
             />
             {/* Status bar */}
-            <div className="mt-2 text-xs text-center text-muted-foreground flex items-center justify-center gap-1">
-              <BrainCircuitIcon className="w-3 h-3" />
-              <span>EdgeTech Research Assistant</span>
+            <div className="mt-2 text-xs text-center flex items-center justify-center gap-1">
+              <BrainCircuitIcon className="w-3 h-3 text-primary" />
+              <span className="text-primary/90 font-medium">EdgeTech Research Assistant</span>
             </div>
           </div>
         </div>

@@ -12,7 +12,7 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
       </div>
     ),
 
-    // Code blocks remain the same size
+    // Code blocks with GitHub-like styling
     code: ({ node, inline, className, children, ...props }: any) => {
       const match = /language-(\w+)/.exec(className || '');
       return !inline && match ? (
@@ -23,25 +23,28 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
             text-sm
             w-full
             overflow-x-auto
-            bg-background/50
-            border-[0.5px] border-border/40
+            bg-gray-100 dark:bg-zinc-800
+            border border-gray-200 dark:border-zinc-700
             p-4
-            rounded-lg
-            shadow-[0_1px_3px_0_rgb(0,0,0,0.02)]
-            backdrop-blur-[2px]
+            rounded-md
+            font-mono
           "
         >
-          <code className={match[1]}>{children}</code>
+          <div className="absolute right-2 top-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-zinc-700 px-2 py-1 rounded font-sans">
+            {match[1]}
+          </div>
+          <code className="text-gray-800 dark:text-gray-200">{children}</code>
         </pre>
       ) : (
         <code
           className="
             text-sm
-            bg-background/50
-            border-[0.5px] border-border/40
+            bg-gray-100 dark:bg-zinc-800
+            border border-gray-200 dark:border-zinc-700
             py-0.5 px-1.5
             rounded-md
             font-mono
+            text-red-600 dark:text-red-400
           "
           {...props}
         >
@@ -50,18 +53,18 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
       );
     },
 
-    // Headings keep their larger sizes
+    // GitHub-style headings
     h1: ({ node, children, ...props }: any) => {
       return (
         <h1
           className="
             text-2xl
             font-semibold
-            text-foreground
+            text-gray-900 dark:text-gray-100
             mb-4
             pb-2
             border-b
-            border-border/40
+            border-gray-200 dark:border-zinc-700
           "
           {...props}
         >
@@ -75,10 +78,13 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
         <h2
           className="
             text-xl
-            font-medium
-            text-foreground
+            font-semibold
+            text-gray-900 dark:text-gray-100
             mt-8
             mb-4
+            pb-1
+            border-b
+            border-gray-200 dark:border-zinc-700
           "
           {...props}
         >
@@ -92,8 +98,8 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
         <h3
           className="
             text-lg
-            font-medium
-            text-foreground
+            font-semibold
+            text-gray-900 dark:text-gray-100
             mt-6
             mb-3
           "
@@ -104,13 +110,13 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
       );
     },
 
-    // All regular text elements use text-sm
+    // GitHub-style paragraphs and lists
     p: ({ node, children, ...props }: any) => {
       return (
         <p
           className="
             text-sm
-            text-foreground/90
+            text-gray-700 dark:text-gray-300
             leading-relaxed
             mb-4
           "
@@ -128,10 +134,10 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
             text-sm
             list-disc
             list-outside
-            ml-4
-            space-y-2
+            ml-6
+            space-y-1
             mb-4
-            text-foreground/90
+            text-gray-700 dark:text-gray-300
           "
           {...props}
         >
@@ -147,10 +153,10 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
             text-sm
             list-decimal
             list-outside
-            ml-4
-            space-y-2
+            ml-6
+            space-y-1
             mb-4
-            text-foreground/90
+            text-gray-700 dark:text-gray-300
           "
           {...props}
         >
@@ -165,7 +171,7 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
           className="
             text-sm
             leading-relaxed
-            pl-1
+            pb-1
           "
           {...props}
         >
@@ -174,16 +180,16 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
       );
     },
 
-    // Table elements use text-sm
+    // GitHub-style tables
     table: ({ node, children, ...props }: any) => {
       return (
-        <div className="w-full overflow-x-auto mb-4">
+        <div className="w-full overflow-x-auto mb-4 border border-gray-200 dark:border-zinc-700 rounded-md">
           <table
             className="
               min-w-full
               border-collapse
               text-sm
-              my-4
+              my-0
             "
             {...props}
           >
@@ -199,12 +205,12 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
           className="
             text-sm
             border-b
-            border-border/40
-            bg-background/50
+            border-gray-200 dark:border-zinc-700
+            bg-gray-100 dark:bg-zinc-800
             p-3
             text-left
-            font-medium
-            text-foreground/90
+            font-semibold
+            text-gray-700 dark:text-gray-300
           "
           {...props}
         >
@@ -219,9 +225,9 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
           className="
             text-sm
             border-b
-            border-border/40
+            border-gray-200 dark:border-zinc-700
             p-3
-            text-foreground/90
+            text-gray-700 dark:text-gray-300
           "
           {...props}
         >
@@ -230,18 +236,21 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
       );
     },
 
-    // Blockquotes use text-sm
+    // GitHub-style blockquotes
     blockquote: ({ node, children, ...props }: any) => {
       return (
         <blockquote
           className="
             text-sm
-            border-l-2
-            border-primary/30
+            border-l-4
+            border-red-300 dark:border-red-800
             pl-4
-            italic
-            text-foreground/80
+            pr-2
+            py-1
+            bg-gray-50 dark:bg-zinc-800
+            text-gray-600 dark:text-gray-400
             my-4
+            rounded-r-md
           "
           {...props}
         >
@@ -250,16 +259,14 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
       );
     },
 
-    // Links
+    // GitHub-style links
     a: ({ node, children, ...props }: any) => {
       return (
         <Link
           className="
-            text-primary
-            hover:text-primary/80
-            underline
-            decoration-primary/30
-            hover:decoration-primary/50
+            text-red-600 dark:text-red-400
+            hover:text-red-800 dark:hover:text-red-300
+            hover:underline
             transition-colors
             duration-200
           "
@@ -272,13 +279,13 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
       );
     },
 
-    // Bold text
+    // GitHub-style bold text
     strong: ({ node, children, ...props }: any) => {
       return (
         <span
           className="
-            font-medium
-            text-foreground/90
+            font-semibold
+            text-gray-900 dark:text-gray-100
           "
           {...props}
         >
@@ -289,7 +296,7 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
   };
 
   return (
-    <div className="p-6">
+    <div className="markdown-github p-5 rounded-lg bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800">
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
         {children}
       </ReactMarkdown>

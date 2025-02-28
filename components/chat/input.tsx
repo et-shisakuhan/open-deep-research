@@ -440,7 +440,7 @@ export function MultimodalInput({
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
           >
-            <SparklesIcon className="h-4 w-4 text-white" />
+            <SparklesIcon className="h-4 w-4 text-white animate-pulse" />
           </motion.div>
         )}
       </Button>

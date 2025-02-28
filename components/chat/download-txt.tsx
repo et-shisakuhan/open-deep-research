@@ -78,7 +78,7 @@ const DownloadTxtButton: React.FC<DownloadTxtButtonProps> = ({
         ease-out
       "
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-primary-foreground/10 to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-full" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary-foreground/30 to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-full" />
       <motion.div
         animate={{ 
           y: [0, -3, 0],
@@ -89,10 +89,11 @@ const DownloadTxtButton: React.FC<DownloadTxtButtonProps> = ({
           duration: 1.5,
           ease: "easeInOut"
         }}
+        className="text-white"
       >
         <DownloadIcon className="w-5 h-5 mr-1" />
       </motion.div>
-      <span>レポートをダウンロード</span>
+      <span className="text-white font-medium">レポートをダウンロード</span>
     </motion.button>
   );
 };

@@ -29,8 +29,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 357 100% 42%; /* Sony Music Red: #D40000 */
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -77,8 +77,8 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 357 100% 42%; /* Sony Music Red: #D40000 */
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -113,4 +113,46 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* GitHub-style Markdown Customizations */
+.markdown-github {
+  counter-reset: line;
+}
+
+.markdown-github pre {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.markdown-github pre > code {
+  display: block;
+  overflow-x: auto;
+  padding: 1rem;
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+  line-height: 1.5;
+}
+
+.markdown-github table {
+  border-spacing: 0;
+  border-collapse: collapse;
+  display: block;
+  width: 100%;
+  overflow: auto;
+}
+
+/* GitHub-like code highlighting styles */
+.markdown-github code {
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+}
+
+/* Subtle pulse animation for emphasis */
+@keyframes pulse-subtle {
+  0% { opacity: 1; }
+  50% { opacity: 0.8; }
+  100% { opacity: 1; }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
 }
