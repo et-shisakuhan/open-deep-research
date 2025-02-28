@@ -28,12 +28,14 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
             p-4
             rounded-md
             font-mono
+            whitespace-pre-wrap
+            break-words
           "
         >
           <div className="absolute right-2 top-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-zinc-700 px-2 py-1 rounded font-sans">
             {match[1]}
           </div>
-          <code className="text-gray-800 dark:text-gray-200">{children}</code>
+          <code className="text-gray-800 dark:text-gray-200 break-words whitespace-pre-wrap">{children}</code>
         </pre>
       ) : (
         <code
@@ -110,7 +112,7 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
       );
     },
 
-    // GitHub-style paragraphs and lists
+    // GitHub-style paragraphs and lists with word wrapping
     p: ({ node, children, ...props }: any) => {
       return (
         <p
@@ -119,6 +121,8 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
             text-gray-700 dark:text-gray-300
             leading-relaxed
             mb-4
+            break-words
+            whitespace-pre-wrap
           "
           {...props}
         >
@@ -172,6 +176,8 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
             text-sm
             leading-relaxed
             pb-1
+            break-words
+            whitespace-pre-wrap
           "
           {...props}
         >
@@ -180,14 +186,15 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
       );
     },
 
-    // GitHub-style tables
+    // GitHub-style tables with automatic word wrapping
     table: ({ node, children, ...props }: any) => {
       return (
-        <div className="w-full overflow-x-auto mb-4 border border-gray-200 dark:border-zinc-700 rounded-md">
+        <div className="w-full mb-4 border border-gray-200 dark:border-zinc-700 rounded-md">
           <table
             className="
-              min-w-full
+              w-full
               border-collapse
+              table-fixed
               text-sm
               my-0
             "
@@ -211,6 +218,8 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
             text-left
             font-semibold
             text-gray-700 dark:text-gray-300
+            break-words
+            whitespace-pre-wrap
           "
           {...props}
         >
@@ -228,6 +237,8 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
             border-gray-200 dark:border-zinc-700
             p-3
             text-gray-700 dark:text-gray-300
+            break-words
+            whitespace-pre-wrap
           "
           {...props}
         >
@@ -251,6 +262,8 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
             text-gray-600 dark:text-gray-400
             my-4
             rounded-r-md
+            break-words
+            whitespace-pre-wrap
           "
           {...props}
         >
@@ -296,7 +309,7 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
   };
 
   return (
-    <div className="markdown-github p-5 rounded-lg bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800">
+    <div className="markdown-github p-5 rounded-lg bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 overflow-x-hidden">
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
         {children}
       </ReactMarkdown>

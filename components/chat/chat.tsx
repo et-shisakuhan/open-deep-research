@@ -36,14 +36,17 @@ export function Chat({
   // State for current input text, exposed to welcome message
   const [inputText, setInputText] = useState("");
 
-  // Add state for mobile progress panel visibility
+  // State for progress panel visibility (both mobile and desktop)
   const [showProgress, setShowProgress] = useState(false);
 
-  // New state to track if we're on mobile (using 768px as breakpoint for md)
+  // State to track if we're on mobile (using 768px as breakpoint for md)
   const [isMobile, setIsMobile] = useState<boolean>(false);
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
+      const isMobileView = window.innerWidth < 768;
+      setIsMobile(isMobileView);
+      // Show progress panel by default on desktop, hide by default on mobile
+      setShowProgress(!isMobileView);
     };
     handleResize();
     window.addEventListener("resize", handleResize);
@@ -278,21 +281,19 @@ export function Chat({
       {/* Main container with dynamic width */}
       <motion.div
         className={`mx-auto flex flex-col h-full pt-10 ${
-          hasStartedResearch ? "md:mr-0" : "md:mx-auto"
+          hasStartedResearch && showProgress ? "md:mr-0" : "md:mx-auto"
         }`}
         initial={{ width: "100%", maxWidth: "800px" }}
         animate={{
-          width: !isMobile && hasStartedResearch ? "55%" : "100%",
-          maxWidth: !isMobile && hasStartedResearch ? "1000px" : "800px",
+          width: !isMobile && hasStartedResearch && showProgress ? "55%" : "100%",
+          maxWidth: !isMobile && hasStartedResearch && showProgress ? "1000px" : "800px",
         }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
         {/* Messages Container */}
         <div
           ref={containerRef}
-          className={`${
-            showProgress ? "hidden md:block" : "block"
-          } flex-1 overflow-y-auto relative`}
+          className="flex-1 overflow-y-auto relative"
         >
           {/* Welcome Message (if no research started and no messages) */}
           {!hasStartedResearch && messages.length === 0 && (
@@ -448,37 +449,62 @@ export function Chat({
           inset-0 md:inset-auto
           bg-background md:bg-transparent
           md:w-[45%]
-          ${showProgress ? "flex" : "hidden md:flex"}
-          ${hasStartedResearch ? "md:flex" : "md:hidden"}
+          ${showProgress ? "flex" : "hidden"}
+          ${hasStartedResearch ? "" : "hidden"}
         `}
         initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: 20 }}
+        animate={{ 
+          opacity: showProgress ? 1 : 0, 
+          x: showProgress ? 0 : 20,
+          width: showProgress ? "45%" : "0%"
+        }}
+        transition={{ duration: 0.3 }}
       >
         <ResearchProgress progress={progress} isLoading={isLoading} />
       </motion.div>
 
-      {/* Mobile Toggle Button - Only show when research has started */}
+      {/* Subtle Toggle Button - Show on both mobile and desktop when research has started */}
       {hasStartedResearch && (
         <button
           onClick={() => setShowProgress(!showProgress)}
           className={`
-            md:hidden
-            fixed
-            bottom-24
+            fixed md:absolute
+            bottom-24 md:top-14
             right-4
             z-50
-            p-3
-            bg-primary
-            text-primary-foreground
-            rounded-full
-            shadow-lg
-            transition-transform
-            ${showProgress ? "rotate-180" : ""}
+            p-2
+            bg-background/80
+            text-muted-foreground
+            hover:text-primary
+            border border-border/30
+            hover:border-border/50
+            rounded-md
+            shadow-sm
+            backdrop-blur-sm
+            transition-all
+            duration-200
+            ${isMobile ? "" : "md:hover:shadow-md"}
           `}
           aria-label="Toggle research progress"
         >
-          <PanelRightOpen className="h-5 w-5" />
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            width="18" 
+            height="18" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+            className={`transition-transform duration-200 ${showProgress ? 'rotate-180' : ''}`}
+          >
+            {showProgress ? (
+              <path d="M11 17l-5-5 5-5M18 17l-5-5 5-5" />
+            ) : (
+              <path d="M13 17l5-5-5-5M6 17l5-5-5-5" />
+            )}
+          </svg>
         </button>
       )}
     </div>

@@ -57,16 +57,16 @@ export function PreviewMessage({ message }: { message: Message }) {
         <div
           className={`flex-1 ${
             message.role === "assistant"
-              ? "prose prose-zinc dark:prose-invert max-w-none"
+              ? "prose prose-zinc dark:prose-invert max-w-none overflow-hidden"
               : ""
           }`}
         >
           {message.role === "assistant" ? (
-            <div className="markdown-content text-foreground/90">
+            <div className="markdown-content text-foreground/90 overflow-hidden">
               <Markdown>{formatFollowUpQuestions(message.content)}</Markdown>
             </div>
           ) : (
-            <p className="text-primary leading-relaxed">{message.content}</p>
+            <p className="text-primary leading-relaxed break-words whitespace-pre-wrap">{message.content}</p>
           )}
         </div>
       </div>

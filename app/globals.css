@@ -118,32 +118,46 @@
 /* GitHub-style Markdown Customizations */
 .markdown-github {
   counter-reset: line;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 .markdown-github pre {
   position: relative;
   margin-bottom: 1rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 .markdown-github pre > code {
   display: block;
-  overflow-x: auto;
   padding: 1rem;
   font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
   line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 .markdown-github table {
   border-spacing: 0;
   border-collapse: collapse;
-  display: block;
   width: 100%;
-  overflow: auto;
+  table-layout: fixed;
+}
+
+.markdown-github th,
+.markdown-github td {
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* GitHub-like code highlighting styles */
 .markdown-github code {
   font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 /* Subtle pulse animation for emphasis */
