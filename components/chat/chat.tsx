@@ -404,8 +404,11 @@ export function Chat({
             ))}
             <div ref={messagesEndRef} className="h-4" />
             {finalReport && (
-              <div className="mt-4">
-                <DownloadTxtButton reportText={finalReport} />
+              <div className="mt-6 flex justify-center">
+                <DownloadTxtButton 
+                  reportText={finalReport}
+                  initialQuery={initialQuery}
+                />
               </div>
             )}
           </div>
