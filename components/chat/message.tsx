@@ -27,16 +27,19 @@ export function PreviewMessage({ message }: { message: Message }) {
       // Split the content into introduction and questions
       const [intro, ...questions] = content.split("\n").filter(Boolean);
 
-      // Format as markdown
-      return `${intro}\n\n${questions
-        .map((q) => {
-          // If the line starts with a number, format it as a markdown list item
-          if (/^\d+\./.test(q)) {
-            return q.trim();
-          }
-          return q;
-        })
-        .join("\n\n")}`;
+      // Format as a proper markdown ordered list
+      const formattedQuestions = questions.map((q) => {
+        // If the line starts with a number, ensure it's formatted as a list item
+        if (/^\d+\./.test(q)) {
+          // Extract the content after the number and period
+          const content = q.trim().replace(/^\d+\.\s*/, '');
+          // Format it with the correct markdown ordered list syntax
+          return `1. ${content}`;
+        }
+        return q;
+      }).join("\n");
+
+      return `${intro}\n\n${formattedQuestions}`;
     }
     return content;
   };
@@ -57,16 +60,16 @@ export function PreviewMessage({ message }: { message: Message }) {
         <div
           className={`flex-1 ${
             message.role === "assistant"
-              ? "prose prose-zinc dark:prose-invert max-w-none"
+              ? "prose prose-zinc dark:prose-invert max-w-none overflow-hidden"
               : ""
           }`}
         >
           {message.role === "assistant" ? (
-            <div className="markdown-content text-foreground/90">
+            <div className="markdown-content text-foreground/90 overflow-hidden">
               <Markdown>{formatFollowUpQuestions(message.content)}</Markdown>
             </div>
           ) : (
-            <p className="text-primary leading-relaxed">{message.content}</p>
+            <p className="text-primary leading-relaxed break-words whitespace-pre-wrap">{message.content}</p>
           )}
         </div>
       </div>

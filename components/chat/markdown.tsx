@@ -3,7 +3,17 @@ import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
+// Helper function to process markdown text to fix numbered list formatting
+const processMarkdownText = (text: string): string => {
+  // Fix numbered lists by preventing line breaks after numbers
+  return text.replace(/^(\d+\.\s)(.+)$/gm, (match, number, content) => {
+    return `${number}${content}`;
+  });
+};
+
 const NonMemoizedMarkdown = ({ children }: { children: string }) => {
+  // Process the markdown text to fix numbered lists formatting
+  const processedText = processMarkdownText(children);
   const components = {
     // Root wrapper
     root: ({ children }: any) => (
@@ -12,7 +22,7 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
       </div>
     ),
 
-    // Code blocks remain the same size
+    // Code blocks with GitHub-like styling
     code: ({ node, inline, className, children, ...props }: any) => {
       const match = /language-(\w+)/.exec(className || '');
       return !inline && match ? (
@@ -23,25 +33,30 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
             text-sm
             w-full
             overflow-x-auto
-            bg-background/50
-            border-[0.5px] border-border/40
+            bg-gray-100 dark:bg-zinc-800
+            border border-gray-200 dark:border-zinc-700
             p-4
-            rounded-lg
-            shadow-[0_1px_3px_0_rgb(0,0,0,0.02)]
-            backdrop-blur-[2px]
+            rounded-md
+            font-mono
+            whitespace-pre-wrap
+            break-words
           "
         >
-          <code className={match[1]}>{children}</code>
+          <div className="absolute right-2 top-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-zinc-700 px-2 py-1 rounded font-sans">
+            {match[1]}
+          </div>
+          <code className="text-gray-800 dark:text-gray-200 break-words whitespace-pre-wrap">{children}</code>
         </pre>
       ) : (
         <code
           className="
             text-sm
-            bg-background/50
-            border-[0.5px] border-border/40
+            bg-gray-100 dark:bg-zinc-800
+            border border-gray-200 dark:border-zinc-700
             py-0.5 px-1.5
             rounded-md
             font-mono
+            text-red-600 dark:text-red-400
           "
           {...props}
         >
@@ -50,18 +65,18 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
       );
     },
 
-    // Headings keep their larger sizes
+    // GitHub-style headings
     h1: ({ node, children, ...props }: any) => {
       return (
         <h1
           className="
             text-2xl
             font-semibold
-            text-foreground
+            text-gray-900 dark:text-gray-100
             mb-4
             pb-2
             border-b
-            border-border/40
+            border-gray-200 dark:border-zinc-700
           "
           {...props}
         >
@@ -75,10 +90,13 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
         <h2
           className="
             text-xl
-            font-medium
-            text-foreground
+            font-semibold
+            text-gray-900 dark:text-gray-100
             mt-8
             mb-4
+            pb-1
+            border-b
+            border-gray-200 dark:border-zinc-700
           "
           {...props}
         >
@@ -92,8 +110,8 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
         <h3
           className="
             text-lg
-            font-medium
-            text-foreground
+            font-semibold
+            text-gray-900 dark:text-gray-100
             mt-6
             mb-3
           "
@@ -104,15 +122,17 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
       );
     },
 
-    // All regular text elements use text-sm
+    // GitHub-style paragraphs and lists with word wrapping
     p: ({ node, children, ...props }: any) => {
       return (
         <p
           className="
             text-sm
-            text-foreground/90
+            text-gray-700 dark:text-gray-300
             leading-relaxed
             mb-4
+            break-words
+            whitespace-pre-wrap
           "
           {...props}
         >
@@ -126,12 +146,11 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
         <ul
           className="
             text-sm
-            list-disc
-            list-outside
-            ml-4
-            space-y-2
+            list-none
+            ml-6
+            space-y-1
             mb-4
-            text-foreground/90
+            text-gray-700 dark:text-gray-300
           "
           {...props}
         >
@@ -145,12 +164,11 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
         <ol
           className="
             text-sm
-            list-decimal
-            list-outside
-            ml-4
-            space-y-2
+            list-none
+            ml-6
+            space-y-1
             mb-4
-            text-foreground/90
+            text-gray-700 dark:text-gray-300
           "
           {...props}
         >
@@ -159,31 +177,98 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
       );
     },
 
-    li: ({ node, children, ...props }: any) => {
+    li: ({ node, children, ordered, ...props }: any) => {
+      // Get parent list type (ordered or unordered)
+      const parentType = props.node?.parent?.type;
+      const isOrderedList = parentType === 'list' && props.node?.parent?.ordered;
+      const isUnorderedList = parentType === 'list' && !props.node?.parent?.ordered;
+      
+      // For all list types, we'll use the custom CSS styling
+      if (isOrderedList || isUnorderedList) {
+        // Check if children contains another list to handle nesting
+        const childContent = React.Children.toArray(children);
+        const hasNestedList = childContent.some(child => 
+          React.isValidElement(child) && (child.type === 'ul' || child.type === 'ol')
+        );
+        
+        // Process children to fix indentation and whitespace issues
+        const processedChildren = React.Children.map(children, child => {
+          // Convert text children to remove extra whitespace at the beginning
+          if (typeof child === 'string') {
+            // Fix whitespace issues with dashes
+            return child.replace(/^\s+/, '').trim();
+          }
+          return child;
+        });
+        
+        if (hasNestedList) {
+          // For nested lists, render processed children directly
+          return (
+            <li
+              className="
+                text-sm
+                leading-relaxed
+                break-words
+                whitespace-normal
+              "
+              {...props}
+            >
+              {processedChildren}
+            </li>
+          );
+        } else {
+          // For simple list items, wrap processed content in span with no extra whitespace
+          return (
+            <li
+              className="
+                text-sm
+                leading-relaxed
+                break-words
+                whitespace-normal
+              "
+              {...props}
+            >
+              <span className="li-content">{processedChildren}</span>
+            </li>
+          );
+        }
+      }
+      
+      // Fallback processing for any other list-like elements
+      const content = React.Children.map(children, child => {
+        if (typeof child === 'string') {
+          // Handle any list-like patterns
+          return child.replace(/^[-*•]|\d+\.\s/, '');
+        }
+        return child;
+      });
+
       return (
         <li
           className="
             text-sm
             leading-relaxed
-            pl-1
+            break-words
+            whitespace-normal
           "
           {...props}
         >
-          {children}
+          <span className="li-content">{content}</span>
         </li>
       );
     },
 
-    // Table elements use text-sm
+    // GitHub-style tables with automatic word wrapping
     table: ({ node, children, ...props }: any) => {
       return (
-        <div className="w-full overflow-x-auto mb-4">
+        <div className="w-full mb-4 border border-gray-200 dark:border-zinc-700 rounded-md">
           <table
             className="
-              min-w-full
+              w-full
               border-collapse
+              table-fixed
               text-sm
-              my-4
+              my-0
             "
             {...props}
           >
@@ -199,12 +284,14 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
           className="
             text-sm
             border-b
-            border-border/40
-            bg-background/50
+            border-gray-200 dark:border-zinc-700
+            bg-gray-100 dark:bg-zinc-800
             p-3
             text-left
-            font-medium
-            text-foreground/90
+            font-semibold
+            text-gray-700 dark:text-gray-300
+            break-words
+            whitespace-pre-wrap
           "
           {...props}
         >
@@ -219,9 +306,11 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
           className="
             text-sm
             border-b
-            border-border/40
+            border-gray-200 dark:border-zinc-700
             p-3
-            text-foreground/90
+            text-gray-700 dark:text-gray-300
+            break-words
+            whitespace-pre-wrap
           "
           {...props}
         >
@@ -230,18 +319,23 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
       );
     },
 
-    // Blockquotes use text-sm
+    // GitHub-style blockquotes
     blockquote: ({ node, children, ...props }: any) => {
       return (
         <blockquote
           className="
             text-sm
-            border-l-2
-            border-primary/30
+            border-l-4
+            border-red-300 dark:border-red-800
             pl-4
-            italic
-            text-foreground/80
+            pr-2
+            py-1
+            bg-gray-50 dark:bg-zinc-800
+            text-gray-600 dark:text-gray-400
             my-4
+            rounded-r-md
+            break-words
+            whitespace-pre-wrap
           "
           {...props}
         >
@@ -250,16 +344,14 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
       );
     },
 
-    // Links
+    // GitHub-style links
     a: ({ node, children, ...props }: any) => {
       return (
         <Link
           className="
-            text-primary
-            hover:text-primary/80
-            underline
-            decoration-primary/30
-            hover:decoration-primary/50
+            text-red-600 dark:text-red-400
+            hover:text-red-800 dark:hover:text-red-300
+            hover:underline
             transition-colors
             duration-200
           "
@@ -272,13 +364,13 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
       );
     },
 
-    // Bold text
+    // GitHub-style bold text
     strong: ({ node, children, ...props }: any) => {
       return (
         <span
           className="
-            font-medium
-            text-foreground/90
+            font-semibold
+            text-gray-900 dark:text-gray-100
           "
           {...props}
         >
@@ -289,9 +381,9 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
   };
 
   return (
-    <div className="p-6">
+    <div className="markdown-github p-5 rounded-lg bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 overflow-x-hidden">
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
-        {children}
+        {processedText}
       </ReactMarkdown>
     </div>
   );

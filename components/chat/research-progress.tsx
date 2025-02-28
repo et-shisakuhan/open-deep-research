@@ -50,6 +50,7 @@ export function ResearchProgress({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [userHasScrolled, setUserHasScrolled] = useState(false);
+  const [collapsedItems, setCollapsedItems] = useState<{ [key: number]: boolean }>({});
 
   // Handle auto-scrolling
   useEffect(() => {
@@ -91,7 +92,7 @@ export function ResearchProgress({
     <div
       ref={containerRef}
       onScroll={handleScroll}
-      className="h-full w-full overflow-y-auto no-scrollbar px-3 py-2 md:px-4 md:py-3 space-y-2"
+      className="h-full w-full overflow-y-auto no-scrollbar px-3 py-2 md:px-4 md:py-3 space-y-1.5"
     >
       <AnimatePresence mode="popLayout">
         {progress.map((step, index) => {
@@ -113,49 +114,69 @@ export function ResearchProgress({
                 className={`
                   group
                   relative
-                  bg-background/50
-                  hover:bg-muted/30
+                  bg-background/30
+                  hover:bg-muted/20
                   cursor-default
-                  border-[0.5px] border-border/40
-                  hover:border-border/60
-                  py-2.5 px-3.5
-                  rounded-lg
+                  border-[0.5px] border-border/20
+                  hover:border-border/30
+                  py-2 px-3
+                  rounded-md
                   flex flex-row
                   gap-3
                   items-start
-                  shadow-[0_1px_3px_0_rgb(0,0,0,0.02)]
-                  hover:shadow-[0_2px_4px_0_rgb(0,0,0,0.02)]
+                  shadow-[0_1px_2px_0_rgb(0,0,0,0.01)]
                   transition-all
-                  duration-300
+                  duration-200
                   ease-out
                   backdrop-blur-[2px]
                   overflow-hidden
-                  hover:translate-y-[-1px]
                 `}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-background/5 to-muted/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                 <div className="text-muted-foreground/70 group-hover:text-primary/70 transition-colors duration-300 flex items-center pt-0.5">
                   {config.icon}
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <div className="text-[13px] leading-[15px] text-primary group-hover:text-foreground transition-colors duration-300">
-                    <span className="opacity-100 font-normal">
-                      {config.text}
-                    </span>{' '}
-                    <span className="opacity-100 font-medium">
-                      {title.split(' ').slice(1).join(' ')}
-                    </span>
+                  <div 
+                    className="flex justify-between items-center"
+                    onClick={() => setCollapsedItems(prev => ({...prev, [index]: !prev[index]}))}
+                  >
+                    <div className="text-[13px] leading-[15px] text-primary group-hover:text-foreground transition-colors duration-300 cursor-pointer">
+                      <span className="opacity-100 font-normal">
+                        {config.text}
+                      </span>{' '}
+                      <span className="opacity-100 font-medium">
+                        {title.split(' ').slice(1).join(' ')}
+                      </span>
+                    </div>
+                    <button 
+                      className="text-muted-foreground/40 hover:text-muted-foreground/60 transition-colors p-1 opacity-70"
+                    >
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        width="14" 
+                        height="14" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                        className={`transition-transform duration-200 ${collapsedItems[index] ? 'rotate-180' : ''}`}
+                      >
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </button>
                   </div>
 
-                  {details.length > 0 && (
-                    <p className="mt-2 text-xs text-muted-foreground/70 line-clamp-2">
+                  {!collapsedItems[index] && details.length > 0 && (
+                    <p className="mt-2 text-xs text-muted-foreground/70">
                       {details.join('\n')}
                     </p>
                   )}
 
-                  {step.queries && (
+                  {!collapsedItems[index] && step.queries && (
                     <div className="mt-2.5 space-y-2">
                       {step.queries.map((query, idx) => (
                         <motion.div
@@ -168,16 +189,15 @@ export function ResearchProgress({
                             ease: [0.4, 0, 0.2, 1],
                           }}
                           className="
-                            bg-background/50
-                            hover:bg-muted/30
-                            border-[0.5px] border-border/40
-                            hover:border-border/60
-                            rounded-lg 
-                            px-3 py-2.5
-                            shadow-[0_1px_3px_0_rgb(0,0,0,0.02)]
+                            bg-background/20
+                            hover:bg-muted/10
+                            border-[0.5px] border-border/20
+                            hover:border-border/30
+                            rounded-md 
+                            px-3 py-2
                             transition-all 
-                            duration-300
-                            backdrop-blur-[2px]
+                            duration-200
+                            backdrop-blur-[1px]
                           "
                         >
                           <p className="text-[13px] leading-[15px] text-muted-foreground/90">
